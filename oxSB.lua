@@ -2579,22 +2579,20 @@ modCommands = {
 			sbAllowedToEveryone = false
 			for i, v in pairs(players:GetPlayers()) do
 				if not Members[v.UserId] and not Moderators[v.UserId] then
-					dataBase[v.UserId]:Close()
+					dataBase[v.UserId]:Close(true)
 				end
 			end
 			return sendData(player, "Output", {"Note", "Command permissions have been removed for everyone (except moderators)"})
 		end
 		local found = false
 		for userId, name in pairs(Members) do
-			--pcall(function()
-				if plyr == "all" or name:sub(1,#plyr)==plyr:lower() then
-					found = true
-					local playerData = dataBase[userId]
-					Members[userId] = nil
-					playerData:Close(true)
-					sendData(player, "Output", {"Note", name.."'s permission has been removed"})
-				end
-			--end)
+			if plyr == "all" or name:sub(1,#plyr):lower() == plyr:lower() then
+				found = true
+				local playerData = dataBase[userId]
+				Members[userId] = nil
+				playerData:Close(true)
+				sendData(player, "Output", {"Note", name.."'s permission has been removed"})
+			end
 		end
 		if not found then
 			sendData(player, "Output", {"Error", plyr.." has not found in the list of members"})
