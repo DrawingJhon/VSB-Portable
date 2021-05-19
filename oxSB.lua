@@ -7,7 +7,7 @@ wait()
 script.Name = "oxSB"
 script.Parent = nil
 
-local Version = "Alpha v2.2.4"
+local Version = "Alpha v2.2.5"
 
 local DS_Key = "6F05FAED-6EA6-4E95-9204-123"
 local psKey = "PrivServsrRand0m7qe8"
@@ -2509,7 +2509,7 @@ modCommands = {
 		local success, userId = pcall(function() return players:GetUserIdFromNameAsync(toBan); end);
 		local name
 		for i, plyr in pairs(players:GetPlayers()) do
-			if plyr.Name:lower():sub(1,#toBan) == toBan:lower() then
+			if plyr.Name:lower():sub(1,#toBan) == toBan:lower() and not dataBase[plyr.UserId].Mod then
 				userId = plyr.UserId
 				name = plyr.Name
 				plyr:Kick("Banned by a vsb moderator - Ban type: Game - Days banned: 3650000 - Reason: "..reason)
@@ -2520,7 +2520,7 @@ modCommands = {
 			return sendData(player, "Output", {"Error", "Error player not found"})
 		end
 		if Moderators[tonumber(userId)] then
-			return sendData(player, "Output", {"Error", "You cannot ban a mod silly"})
+			return sendData(player, "Output", {"Error", "You cannot ban a mod"})
 		end
 		SetGlobalBan(tostring(userId), {Name=name or toBan,BannedBy=player.Name,Reason=reason,Timestamp=os.time(),Duration=3650000})
 
@@ -2528,12 +2528,9 @@ modCommands = {
 		sendData(player, "Output", {"Note", "Permanent Banned "..(name or toBan)})
 	end,
 	["shutdown"] = function(player, reason)
-		players.PlayerAdded:Connect(function(plyr)
-			plyr:Kick("The server has been shutdowned")
+		OnPlayerAdded(function(plr)
+			plr:Kick("Server shutdown: "..(reason and tostring(reason) or "No reason given"))
 		end)
-		for i, plyr in pairs(players:GetPlayers()) do
-			plyr:Kick("Shutdown: "..(reason and tostring(reason) or "No reason given"))
-		end
 	end,
 	["kick"] = function(player, result)
 		local toKick, reason = result:match("([%w_]+)/(.*)")
@@ -2553,7 +2550,7 @@ modCommands = {
 	["member, mb"] = function(player, plyr)
 		if string.lower(plyr) == "everyone" then
 			if sbAllowedToEveryone then
-				return sendData(player, "Output", {"Warn", "Everyone have already access to the commands"})
+				return sendData(player, "Output", {"Warn", "Everyone has already access to the commands"})
 			end
 			for i, v in pairs(players:GetPlayers()) do
 				if dataBase[v.UserId] and not dataBase[v.UserId].SB then
