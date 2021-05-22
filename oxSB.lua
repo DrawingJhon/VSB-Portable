@@ -7,7 +7,7 @@ wait()
 script.Name = "oxSB"
 script.Parent = nil
 
-local Version = "Alpha v2.2.5"
+local Version = "Alpha v2.2.6"
 
 local DS_Key = "6F05FAED-6EA6-4E95-9204-123"
 local psKey = "PrivServsrRand0m7qe8"
@@ -1439,13 +1439,6 @@ commands = {
 		else
 			sendData(player, "Output", {"Error", "Name (" .. (name or result) .. ") is not allowed to use"})
 		end
-	end,
-	["createlocal"] = function(player)
-		local message = Instance.new("Message", player:findFirstChildOfClass("PlayerGui"))
-		message.Text = "createlocal/ has been removed. Use create/name and runlocal/name instead\nIf you're using SB bot, update it or set it to 'AntiBoomZ0r'"
-		delay(10, function()
-			message:Destroy()
-		end)
 	end,
 	["edit"] = function(player, name)
 		local playerData = dataBase[player.userId]
