@@ -7,7 +7,7 @@ wait()
 script.Name = "oxSB"
 script.Parent = nil
 
-local Version = "Alpha v2.2.6"
+local Version = "Alpha v2.2.7"
 
 local DS_Key = "6F05FAED-6EA6-4E95-9204-123"
 local psKey = "PrivServsrRand0m7qe8"
@@ -35,12 +35,12 @@ local startergui = game:GetService("StarterGui")
 local tweenService = game:GetService("TweenService")
 local mainData = dataStore:GetDataStore(DS_Key, "dy3BrMu2ieAHZgz@kIXcG&t&q9ru")
 local btools = (function()
-	local bt, cs
+	local bt
 	local success = pcall(function()
-		bt = getfenv(require(5957899914).f3x).script["Building Tools"]:Clone()
+		bt = getfenv(require(6772682420).F3X).script["Building Tools"]:Clone()
 	end)
 	if not success then
-		warn(err)
+		warn(":SB_Error (Unable to get f3x from module):"..err)
 	end
 	return bt
 end)()
