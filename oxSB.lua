@@ -62,7 +62,9 @@ local Moderators = {
 }
 local Members = {
 	[907012872] = "ignasi29",
-	[428609829] = "Axelle63"
+	[428609829] = "Axelle63",
+	[688322357] = "tacomexicano_ROBLOX",
+	[1521766652] = "FernandoPlayerYT"
 }
 
 for i, v in next, players:GetPlayers() do
@@ -106,7 +108,7 @@ mainEnv.script = nil
 local mainEnvFunc = setfenv(1, mainEnv)
 local coreLibs = {LoadLibrary=true, table=true, coroutine=true, string=true, math=true, os=true, assert=true, collectgarbage=true, dofile=true, error=true, _G=true, shared=true, gcinfo=true, getfenv=true, getmetatable=true, ipairs=true, load=true, loadfile=true, loadstring=true, newproxy=true, next=true, pairs=true, pcall=true, ypcall=true, print=true, rawequal=true, rawget=true, rawset=true, select=true, setfenv=true, setmetatable=true, tonumber=true, tostring=true, type=true, unpack=true, _VERSION=true, xpcall=true, require=true}
 local isA = game.IsA
-local proxyObj, newProxyEnv, setGuiItems;
+local proxyObj, newProxyEnv, hookClient;
 
 local coroutine = {wrap = coroutine.wrap, create = coroutine.create, resume = coroutine.resume};
 local string = {gsub = string.gsub, sub = string.sub, lower = string.lower, gmatch = string.gmatch, match = string.match, format = string.format, find = string.find, upper = string.upper};
@@ -2541,13 +2543,13 @@ modCommands = {
 		sendData(player, "Output", {"Note", "Kicked "..plyr.Name})
 	end,
 	["member, mb"] = function(player, plyr)
-		if string.lower(plyr) == "everyone" then
+		if string.lower(plyr) == "@everyone" then
 			if sbAllowedToEveryone then
 				return sendData(player, "Output", {"Warn", "Everyone has already access to the commands"})
 			end
 			for i, v in pairs(players:GetPlayers()) do
 				if dataBase[v.UserId] and not dataBase[v.UserId].SB then
-					coroutine.wrap(setGuiItems)(v)
+					coroutine.wrap(hookClient)(v)
 				end
 			end
 			sbAllowedToEveryone = true
@@ -2562,20 +2564,20 @@ modCommands = {
 				sendData(player, "Output", {"Warn", toPlr.Name.." has already access to the commands"})
 			else
 				Members[toPlr.UserId] = toPlr.Name
-				setGuiItems(toPlr)
+				hookClient(toPlr)
 				sendData(player, "Output", {"Note", toPlr.Name.." is a new member (The output has been given)"})
 			end
 		end
 	end,
 	["unmember, unmb"] = function(player, plyr)
-		if string.lower(plyr) == "everyone" then
+		if string.lower(plyr) == "@everyone" then
 			sbAllowedToEveryone = false
 			for i, v in pairs(players:GetPlayers()) do
 				if not Members[v.UserId] and not Moderators[v.UserId] then
 					dataBase[v.UserId]:Close(true)
 				end
 			end
-			return sendData(player, "Output", {"Note", "Command permissions have been removed for everyone (except moderators)"})
+			return sendData(player, "Output", {"Note", "Command permissions have been removed for everyone (except moderators/members)"})
 		end
 		local found = false
 		for userId, name in pairs(Members) do
@@ -3286,7 +3288,7 @@ oof.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 oof.TextStrokeTransparency = 0
 oof.ZIndex = -2147483648
 
-function setGuiItems(player, justPlayerData)
+function hookClient(player, justPlayerData)
 	local playerData = dataBase[player.userId]
 	if not playerData then
 		playerData = {Player = player, SB = not justPlayerData, Quicks = {}, Scripts = {}, Saves = {}, Requires = {}, Close = emptyFunction}
@@ -3965,16 +3967,16 @@ function setGuiItems(player, justPlayerData)
 	ProtectedGui.Parent = PlayerGui
 end
 
-local function startPlayer(plr)
+local function setupPlayer(plr)
 	if Members[plr.UserId] or Moderators[plr.UserId] or sbAllowedToEveryone then
-		setGuiItems(plr)
+		hookClient(plr)
 	else
-		setGuiItems(plr, true)
+		hookClient(plr, true)
 	end
 end
 
 OnPlayerAdded(function(player)
-	coroutine.wrap(startPlayer)(player)
+	coroutine.wrap(setupPlayer)(player)
 	local ind = tostring(player.UserId)
 	local banData = banList[ind]
 	local gBanData = gBanList[ind]
