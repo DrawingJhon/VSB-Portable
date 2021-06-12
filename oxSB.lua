@@ -7,7 +7,7 @@ wait()
 script.Name = "oxSB"
 script.Parent = nil
 
-local Version = "Alpha v2.2.7"
+local Version = "Alpha v2.2.8"
 
 local DS_Key = "6F05FAED-6EA6-4E95-9204-123"
 local psKey = "PrivServsrRand0m7qe8"
@@ -253,7 +253,7 @@ local function Pcall(func, ...)
 	return unpack(args)
 end
 
-local function getFormatedTime(sec)
+local function getFormattedTime(sec)
 	sec = tonumber(sec) or tick()
 	return ("%.2d:%.2d:%.2d"):format(sec/3600%24, sec/60%60, sec%60)
 end
@@ -2364,12 +2364,12 @@ getCommands = {
 				expand.MouseButton1Click:Connect(function()
 					if not opened then
 						opened = true
-						def:TweenSize(UDim2.new(1, -12, 0, 100), "Out", nil, 0.3, true)
+						def:TweenSize(UDim2.new(1, -12, 0, 100), "Out", nil, 0.2, true)
 						tweenService:Create(body, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
 						tweenService:Create(join, TweenInfo.new(0.2), {TextTransparency = 0}):Play()
 					else
 						opened = false
-						def:TweenSize(UDim2.new(1, -12, 0, 25), "Out", nil, 0.3, true)
+						def:TweenSize(UDim2.new(1, -12, 0, 25), "Out", nil, 0.2, true)
 						tweenService:Create(body, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
 						tweenService:Create(join, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
 					end
@@ -2621,7 +2621,7 @@ modCommands = {
 				if tn % 3 == 0 then
 					game:GetService("RunService").Heartbeat:wait()
 				end
-				sendData(player, "Output", {"Print", data.RequireId.." By "..data.Name.." ("..data.UserId..") At "..getFormatedTime(data.Time)})
+				sendData(player, "Output", {"Print", data.RequireId.." By "..data.Name.." ("..data.UserId..") At "..getFormattedTime(data.Time)})
 			end
 		end
 		sendData(player, "Output", {"Note", "Got require logs"})
@@ -3797,7 +3797,7 @@ function hookClient(player, justPlayerData)
 		RbxEvent(game:GetService("RunService").Stepped, function()
 			local x, y = mouse.X, mouse.Y
 			local absPos, absSize = mainFrame.AbsolutePosition, mainFrame.AbsoluteSize
-			local dist = 5
+			local dist = 3
 			if (x <= (absPos.X + absSize.X + dist) and x >= (absPos.X + absSize.X - dist)) and (y >= absPos.Y and y <= (absPos.Y + absSize.Y)) then
 				-- Right dragging
 				aroundDrag = "Right"
