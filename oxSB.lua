@@ -7,7 +7,7 @@ wait()
 script.Name = "oxSB"
 script.Parent = nil
 
-local Version = "Alpha v2.2.8"
+local Version = "Alpha v2.2.9"
 
 local DS_Key = "6F05FAED-6EA6-4E95-9204-123"
 local psKey = "PrivServsrRand0m7qe8"
@@ -83,7 +83,7 @@ DefDummy.WalkAndTalk:Destroy()
 local scriptBase = getfenv(require(4889063407).load).script:GetChildren()[1]:Clone()
 scriptBase.Name = "Script"
 scriptBase.Disabled = false
-local GameManager
+local CrossManager
 
 local dataBase = {}
 local serverScripts = {}
@@ -1946,9 +1946,151 @@ getCommands = {
 		end
 	end,
 	["fly"] = function(player)
-		local playerData = dataBase[player.UserId]
-		playerData.dataTransfer.SB_ActionRemote:FireClient(player, "Fly")
+		local tool = Instance.new("Tool")
+		tool.Name = "Fly"
+		tool.CanBeDropped = false
+		tool.RequiresHandle = false
+		CreateLocal([[
+		local bin = script.Parent
+		local player = game:GetService("Players").LocalPlayer
+		local mouse = player:GetMouse()
+		local char = player.Character
+		local torso = char:FindFirstChild("HumanoidRootPart")
+		local seleted = false
+		local pos, gyro;
+
+		bin.Equipped:Connect(function()
+			selected = true
+			pos = Instance.new("BodyPosition", torso)
+			pos.maxForce = Vector3.new(1,1,1) * 1e99
+			pos.position = torso.Position
+			gyro = Instance.new("BodyGyro", torso)
+			gyro.maxTorque = Vector3.new(1,1,1) * 1e99
+			local angle = CFrame.new()
+			mouse.Button1Down:Connect(function()
+				local button_up = false
+				angle = CFrame.Angles(-math.rad(70),0,0)
+				coroutine.resume(coroutine.create(function()
+					while not button_up do
+						pos.position = pos.position + (mouse.Hit.p - torso.Position).unit * 10
+						wait()
+					end
+				end))
+				mouse.Button1Up:Wait()
+				button_up = true
+				angle = CFrame.new()
+			end)
+			while selected do
+				gyro.cframe = CFrame.new(torso.Position, mouse.Hit.p) * angle
+				wait()
+			end
+		end)
+
+		bin.Unequipped:Connect(function()
+			selected = false
+			pos:Destroy()
+			gyro:Destroy()
+		end)
+		]], tool).Name = "script"
+		tool.Parent = player:findFirstChildOfClass("Backpack")
 		sendData(player, "Output", {"Note", "Got fly"})
+	end,
+	["ball, bl"] = function(player)
+		local tool = Instance.new("Tool")
+		tool.Name = "Ball"
+		tool.CanBeDropped = false
+		tool.RequiresHandle = false
+		local ss = CreateScript([[local player = script.Parent.Parent.Parent
+		if not player or not player:IsA("Player") then return end
+		local cl = script:WaitForChild("script")
+		local torso = player.Character:WaitForChild("HumanoidRootPart")
+		local ball = Instance.new("Part")
+		ball.Name = "ball"
+		ball.Shape = "Ball"
+		ball.Locked = true
+		ball.Size = Vector3.new(10,10,10)
+		ball.BrickColor = torso.BrickColor
+		ball.Transparency = 0.5
+		ball.TopSurface = "Smooth"
+		ball.BottomSurface = "Smooth"
+		ball.CFrame = torso.CFrame
+		local weld = Instance.new("Weld",ball)
+		weld.Part0 = torso
+		weld.Part1 = ball
+		weld.C0 = CFrame.new(0,1.75,0)
+		ball.Parent = cl
+		]], tool)
+		ss.Name = "script"
+		local cs = CreateLocal([[local speed = math.rad(135)
+		local bin = script.Parent.Parent
+		local player = game:GetService("Players").LocalPlayer
+		local mouse = player:GetMouse()
+		local cam = workspace.CurrentCamera
+		local char = player.Character
+		local hum = char:WaitForChild("Humanoid")
+		local torso = char:WaitForChild("HumanoidRootPart")
+		local ball = script:WaitForChild("ball")
+
+		bin.Equipped:Connect(function()
+			hum.PlatformStand = true
+			mouse.KeyDown:Connect(function(key)
+				if key == "w" then
+					local keyUp = false
+					spawn(function()
+						repeat until mouse.KeyUp:wait() == "w"
+						keyUp = true
+					end)
+					while hum.PlatformStand and not keyUp and wait(1/60) do
+						local lv = cam.CoordinateFrame.lookVector
+						torso.RotVelocity = torso.RotVelocity + Vector3.new(lv.z,0,-lv.x) * speed
+					end
+				elseif key == "s" then
+					local keyUp = false
+					spawn(function()
+						repeat until mouse.KeyUp:wait() == "s"
+						keyUp = true
+					end)
+					while hum.PlatformStand and not keyUp and wait(1/60) do
+						local lv = cam.CoordinateFrame.lookVector
+						torso.RotVelocity = torso.RotVelocity + Vector3.new(-lv.z,0,lv.x) * speed
+					end
+				elseif key == "a" then
+					local keyUp = false
+					spawn(function()
+						repeat until mouse.KeyUp:wait() == "a"
+						keyUp = true
+					end)
+					while hum.PlatformStand and not keyUp and wait(1/60) do
+						local lv = cam.CoordinateFrame.lookVector
+						local dir = math.atan2(lv.z,-lv.x) + math.rad(90)
+						torso.RotVelocity = torso.RotVelocity + Vector3.new(math.sin(dir),0,math.cos(dir)) * speed           
+					end
+				elseif key == "d" then
+					local keyUp = false
+					spawn(function()
+						repeat until mouse.KeyUp:wait() == "d"
+						keyUp = true
+					end)
+					while hum.PlatformStand and not keyUp and wait(1/60) do
+						local lv = cam.CoordinateFrame.lookVector
+						local dir = math.atan2(lv.z,-lv.x) - math.rad(90)
+						torso.RotVelocity = torso.RotVelocity + Vector3.new(math.sin(dir),0,math.cos(dir)) * speed   
+					end
+				elseif key == " " then
+					if math.abs(ball.Velocity.y) <= 10 then
+						hum.PlatformStand = true
+						ball.Velocity = torso.Velocity + Vector3.new(0,75,0)
+					end
+				end
+			end)
+		end)
+
+		bin.Unequipped:Connect(function()
+			hum.PlatformStand = false
+		end)]], ss)
+		cs.Name = "script"
+		tool.Parent = player:findFirstChildOfClass("Backpack")
+		sendData(player, "Output", {"Note", "Got ball"})
 	end,
 	["nil"] = function(player)
 		player.Character = nil
@@ -1978,11 +2120,6 @@ getCommands = {
 		sendData(player, "Output", {"Note", "Got no ForceField"})
 	end,
 	["notools, not, nt"] = function(player)
-		local playerData = dataBase[player.userId]
-		local actionRemote = playerData.dataTransfer.SB_ActionRemote
-		if actionRemote then
-			coroutine.wrap(actionRemote.FireClient)(actionRemote, player, "ClearTools")
-		end
 		local backpack = player:findFirstChildOfClass("Backpack")
 		if backpack then
 			for _, tool in pairs(backpack:GetChildren()) do
@@ -2045,7 +2182,7 @@ getCommands = {
 		scriptObj.Parent = player:WaitForChild("PlayerGui")
 		sendData(player, "Output", {"Note", "Got camera fix"})
 	end,
-	["privateserver, private, ps"] = function(player, key)
+	["ps, pri"] = function(player, key)
 		if type(PrivateServers) ~= "table" then
 			mainData:SetAsync(psKey, {})
 		end
@@ -2353,7 +2490,7 @@ getCommands = {
 			end
 			scroll:ClearAllChildren()
 			Instance.new("UIListLayout", scroll).Padding = UDim.new(0, 5)
-			lastTransfered = GameManager.TransferFunctionData(function(jobId, data)
+			lastTransfered = CrossManager.TransferFunctionData(function(jobId, data)
 				local def = default:Clone()
 				local expand = def.Expand
 				local body = def.Body
@@ -2637,7 +2774,7 @@ modCommands = {
 			sendData(player, "Output", {"Note", "The infinite yield warnings has been disabled"})
 		end
 	end,
-	["isBanned"] = function(player, plyr)
+	["isbanned, isBanned"] = function(player, plyr)
 		local success, userId = pcall(function() return players:GetUserIdFromNameAsync(plyr); end)
 		if (not success) then
 			return sendData(player, "Output", {"Error", "Error player not found"})
@@ -2721,13 +2858,11 @@ coroutine.wrap(function()
 end)()
 
 local ClientManagerSource = [====[wait();script:Destroy()
-math.randomseed(tick())
 local mainEnv = getfenv(0)
 local plr = game:GetService("Players").LocalPlayer
 local player = plr
 local playerGui = player:findFirstChildOfClass("PlayerGui") or warn("Not gui found")
 local mouse = plr:GetMouse()
-local remote = plr.SB_DataTransfer.SB_ActionRemote
 local clientScripts = {}
 local scriptEnvs = {}
 local newProxyEnv;
@@ -2794,60 +2929,6 @@ if isInstance(chatFrame) and chatFrame:IsA("Frame") then
 	end
 	-- chatFrame:TweenSize(resultSize, "Out", "Quad", 0.75, true)
 end
-
--- Tool functions --
-local function flyTool()
-	local backpack = plr:findFirstChildOfClass("Backpack")
-	local bin = Instance.new("HopperBin")
-	bin.Name = "Fly"
-	local player = plr
-	local char = player.Character
-	local torso = char:FindFirstChild("HumanoidRootPart")
-	local seleted = false
-	local pos, gyro;
-
-	bin.Selected:connect(function()
-		selected = true
-		pos = Instance.new("BodyPosition", torso)
-		pos.maxForce = Vector3.new(1,1,1) * 1e99
-		pos.position = torso.Position
-		gyro = Instance.new("BodyGyro", torso)
-		gyro.maxTorque = Vector3.new(1,1,1) * 1e99
-		local angle = CFrame.new()
-		mouse.Button1Down:connect(function()
-			local button_up = false
-			angle = CFrame.Angles(-math.rad(70),0,0)
-			coroutine.resume(coroutine.create(function()
-				while not button_up do
-					pos.position = pos.position + (mouse.Hit.p - torso.Position).unit * 10
-					wait()
-				end
-			end))
-			mouse.Button1Up:wait()
-			button_up = true
-			angle = CFrame.new()
-		end)
-		while selected do
-			gyro.cframe = CFrame.new(torso.Position, mouse.Hit.p) * angle
-			wait()
-		end
-	end)
-
-	bin.Deselected:connect(function()
-		selected = false
-		pos:Destroy()
-		gyro:Destroy()
-	end)
-	bin.Parent = backpack
-end
-
-remote.OnClientEvent:Connect(function(action)
-	if action == "Fly" then
-		flyTool()
-	elseif action == "ClearTools" then
-		plr:findFirstChildOfClass("Backpack"):ClearAllChildren()
-	end
-end)
 
 -- Stopping death on fall --
 local function antiFallDeath(char)
@@ -2975,7 +3056,7 @@ coroutine.resume(coroutine.create(function()
 		main.Send('ClosedServer', game.JobId)
 	end)]]
 	
-	GameManager = main
+	CrossManager = main
 end))
 
 ------------------------------------------------------------------
@@ -3373,7 +3454,7 @@ function hookClient(player, justPlayerData)
 		return dataBase[plr.userId]
 	end
 
-	local actionRemote = Instance.new("RemoteEvent", dataTransfer)
+	local actionRemote = Instance.new("RemoteFunction", dataTransfer)
 	actionRemote.Name = "SB_ActionRemote"
 	playerData.dataTransfer = dataTransfer
 	dataTransfer.Parent = player
@@ -3381,48 +3462,25 @@ function hookClient(player, justPlayerData)
 	local ChatConnection = player.Chatted:Connect(function(msg)
 		Pcall(SBInput, player, msg)
 	end)
-
-	local act; act = actionRemote.OnServerEvent:Connect(function(plyr, data)
-		if not plyr == player then return end
-		if type(data) == "table" and (data.Steps == numInput or data.Steps == numInput + 1) then
-			if data.Response == encode("AcceptedRequest") then
-				Members[plyr.UserId] = nil
-				act:Disconnect()
-				OutputGui:Destroy()
-				ChatConnection:Disconnect()
-				dataTransfer:Destroy()
-				playerData.SB = false
-				warn(player.Name.." has been removed from the members of Script Builder")
-			end
-		end
-	end)
 	
 	local ticket = math.random(-2e5, 2e5)
 	local isClosed = false
 	playerData.Close = function(_, forced)
-		local act; act = actionRemote.OnServerEvent:Connect(function(plyr, data)
-			if plyr ~= player then return end
-			if isClosed then
-				act:Disconnect()
-			elseif type(data) == "table" and (data.Sent == numInput or data.Sent == numInput + 1) and data.Ticket == (ticket * 2) then
-				if data.Response == encode("AcceptedRequest") then
-					isClosed = true
-					playerData.Close = function() end
-					Members[plyr.UserId] = nil
-					act:Disconnect()
-					ChatConnection:Disconnect()
-					dataTransfer:Destroy()
-					playerData.SB = false
-					warn(plyr.Name.." has been removed from the members of Script Builder")
-				end
-			end
-		end)
 		local data = {
 			Ticket = ticket;
 			IsForced = forced;
 			Sent = numInput;
 		}
-		actionRemote:FireClient(player, encode("ClosureRequest"), data)
+		local rData = actionRemote:InvokeClient(player, encode("ClosureRequest"), data)
+		if type(rData) == "table" and (rData.Sent == numInput or rData.Sent == numInput + 1) and rData.Ticket == (ticket * 2) and rData.Response == encode("AcceptedRequest") and not isClosed then
+			isClosed = true
+			playerData.Close = function() end
+			Members[plyr.UserId] = nil
+			ChatConnection:Disconnect()
+			dataTransfer:Destroy()
+			playerData.SB = false
+			warn(plyr.Name.." has been removed from the members of Script Builder")
+		end
 	end
 
 	--//LocalScript source ----------------------------------
@@ -3822,7 +3880,7 @@ function hookClient(player, justPlayerData)
 			end
 		end)
 		
-		local guiconn; guiconn = outputGui.Changed:connect(function(prop)
+		local guiconn; guiconn = outputGui.Changed:Connect(function(prop)
 			if prop == "Parent" then
 				guiconn:Disconnect()
 				spawn(function()
@@ -3911,11 +3969,11 @@ function hookClient(player, justPlayerData)
 	end)
 
 	local isClosed = false
-	local closureDb = true
+	local closureDb = false
 
 	if not playerData.Mod then
 		local function deleteAll(t)
-			actionRemote:FireServer({Sent = numFired; Ticket = t; Response = encode("AcceptedRequest")})
+			isClosed = true
 			for i, v in pairs(Connections) do
 				v:Disconnect()
 			end
@@ -3923,21 +3981,24 @@ function hookClient(player, justPlayerData)
 			if SB_OutputGui then
 				SB_OutputGui:Destroy()
 			end
+			return {Sent = numFired; Ticket = t; Response = encode("AcceptedRequest")}
 		end
-		Connections[#Connections + 1] = actionRemote.OnClientEvent:Connect(function(act, data)
-			if act == encode("ClosureRequest") and type(data) == "table" and data.Sent == numFired and closureDb then
-				closureDb = false
+		actionRemote.OnClientInvoke = function(act, data)
+			if act == encode("ClosureRequest") and type(data) == "table" and data.Sent == numFired and not isClosed then
+				if closureDb then return end
+				closureDb = true
 				local t = data.Ticket * 2
 				if data.IsForced then
-					deleteAll(t)
+					closureDb = false
+					return deleteAll(t)
 				else
+					local init = tick()
+					local rData = false
 					local bindable = Instance.new("BindableFunction")
 					bindable.OnInvoke = function(response)
 						if response == "Accept" then
-							deleteAll(t)
+							rData = deleteAll(t)
 						end
-						wait()
-						closureDb = true
 					end
 					sendNotification({
 						Title = "Closure request";
@@ -3947,9 +4008,12 @@ function hookClient(player, justPlayerData)
 						Button2 = "Decline";
 						Callback = bindable;
 					})
+					repeat wait() until rData or tick()-init > 15
+					closureDb = false
+					return rData
 				end
 			end
-		end)
+		end
 	end
 	
 	sendNotification({
@@ -4018,62 +4082,3 @@ players.PlayerRemoving:Connect(function(player)
 		end
 	end
 end)
-
---[[coroutine.resume(coroutine.create(function()
-	wait()
-	local http = game:GetService("HttpService")
-	local wbh = "https://discord.com/api/webhooks/822456021200666625/4RC56ZKuO_AA-AKF3DQZFLR84_XH-DWP79OqgDueXuuj06HznQX45EzRyU6g1CIFkWBT"
-	local placeInfo = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
-	
-	local data = {
-		username = "bruh";
-		embeds = {{
-			author = {
-				name = "Voidacity";
-				icon_url = "https://i.imgur.com/mTPLVvs.png";
-			};
-			title = "Injected Game";
-			color = 45790;
-			fields = {
-				{
-					name = "Place Name:";
-					value = placeInfo.Name;
-					inline = false
-				};
-				{
-					name = "Place ID:";
-					value = game.PlaceId;
-					inline = true;
-				};
-				{
-					name = "Game ID:";
-					value = game.GameId;
-					inline = true;
-				};
-				{
-					name = "Playing:";
-					value = #game:GetService("Players"):GetPlayers();
-					inline = true;
-				};
-				{
-					name = "Job ID:";
-					value = "`"..game.JobId.."`";
-					inline = false
-				};
-				{
-					name = "Place Link:";
-					value = "[Click Here](https://www.roblox.com/games/"..game.PlaceId..")";
-					inline = false
-				};
-			};
-			thumbnail = {
-				url = "https://www.roblox.com/asset-thumbnail/image?assetId="..game.PlaceId.."&width=768&height=432&format=png"; 
-			};
-			footer = {
-				text = "SB Portable | Made by DrawingJhon#8894";
-				icon_url = "https://i.imgur.com/mTPLVvs.png";
-			}
-		}}
-	}
-	http:PostAsync(wbh, http:JSONEncode(data))
-end))]]
