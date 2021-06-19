@@ -1,13 +1,13 @@
 ----------------------------------------------------------------------
 --// VOID SCRIPT BUILDER PORTABLE \\--
--- Script compatibility by DrawingJhon | Original made by tusKOr661 --
+-- Script compatible by DrawingJhon | Original made by tusKOr661 --
 ----------------------------------------------------------------------
 
 wait()
 script.Name = "oxSB"
 script.Parent = nil
 
-local Version = "Alpha v2.2.9"
+local Version = "Alpha v2.2.10"
 
 local DS_Key = "6F05FAED-6EA6-4E95-9204-123"
 local psKey = "PrivServsrRand0m7qe8"
@@ -17,7 +17,7 @@ local loadstringEnabled = pcall(loadstring, "local hello = 'hi'")
 local Loadstring = require(5343495217)
 local LoadLibrary = require(4960288388)
 local req = require(6505718551)
-local sbAllowedToEveryone = false
+local EAenabled = false
 local CreateScript = req.NS
 local CreateLocal = req.NLS
 
@@ -40,7 +40,7 @@ local btools = (function()
 		bt = getfenv(require(6772682420).F3X).script["Building Tools"]:Clone()
 	end)
 	if not success then
-		warn(":SB_Error (Unable to get f3x from module):"..err)
+		warn(":SB_Error (Unable to get f3x from module): "..err)
 	end
 	return bt
 end)()
@@ -66,16 +66,6 @@ local Members = {
 	[688322357] = "tacomexicano_ROBLOX",
 	[1521766652] = "FernandoPlayerYT"
 }
-
-for i, v in next, players:GetPlayers() do
-	if Moderators[v.UserId] then
-		v.AutoJumpEnabled = false
-		local hum = v.Character and v.Character:findFirstChildOfClass("Humanoid")
-		if hum then
-			hum.AutoJumpEnabled = false
-		end
-	end
-end
 
 local DefDummy = insert:LoadAsset(124120704):GetChildren()[1]
 DefDummy.Name = "Default Dummy"
@@ -1392,7 +1382,7 @@ commands = {
 			sendData(player, "Output", {"Error", "You're not a moderator, you cannot use mod commands."});
 			return;
 		end
-		local cmd, result = result:match("^(%w+)/(.+)")
+		local cmd, result = result:match("^(%w+)/(.*)")
 		if (cmd) then
 			for cmdkey, func in pairs(modCommands) do
 				if ((", "..string.lower(cmdkey)..", "):match(", "..string.lower(cmd)..", ")) then
@@ -2356,7 +2346,7 @@ getCommands = {
 		sendData(player, "Output", {"Note", "Accept the closure request to remove yourself from members"})
 	end,
 	["version"] = function(player)
-		sendData(player, "Output", {"Print", "VSB_Version: "..tostring(Version)})
+		sendData(player, "Output", {"Note", "VSB: "..tostring(Version).." - Updated and compatible by DrawingJhon"})
 	end,
 	["gamelist, games, servers"] = function(player, result)
 		local exit, refresh, scroll
@@ -2550,7 +2540,7 @@ getCommands = {
 modCommands = {
 	["ban, b"] = function(player, result)
 		local toBan, reason = result:match("([%w_]+)/(.*)")
-		reason = reason or "No reason given"
+		reason = reason:match("%S") and reason or "No reason provided."
 		if not toBan then
 			return sendData(player, "Output", {"Error", "Error while parsing command"})
 		end
@@ -2562,7 +2552,7 @@ modCommands = {
 			return sendData(player, "Output", {"Error", "You cannot ban a mod silly"})
 		end
 		banList[tostring(plyr.UserId)] = {Name = plyr.Name, BannedBy = player.Name, Reason = reason}
-		plyr:Kick("Banned by a vsb moderator - Ban type: Server - Reason: "..reason)
+		plyr:Kick("Banned by: "..player.Name.." - Ban type: Server - Reason: "..reason)
 		sendData(player, "Output", {"Note", "Banned "..plyr.Name})
 	end,
 	["unban, ub"] = function(player, name)
@@ -2581,7 +2571,7 @@ modCommands = {
 	end,
 	["tban, tb"] = function(player, result)
 		local toBan, duration, reason = result:match("([%w_]+)/(%d+)/(.*)")
-		reason = reason or "No reason given"
+		reason = reason:match("%S") and reason or "No reason provided."
 		if (not toBan or not duration) then
 			return sendData(player, "Output", {"Error", "Error while parsing command"})
 		end
@@ -2593,13 +2583,14 @@ modCommands = {
 			return sendData(player, "Output", {"Error", "You cannot ban a mod silly"})
 		end
 		local ind = tostring(plyr.UserId)
-		plyr:Kick("Banned by a vsb moderator - Ban type: Game - Days banned: "..duration.." - Reason: "..reason)
+		plyr:Kick("Banned by: "..player.Name.." - Ban type: Game - Days banned: "..duration.." - Reason: "..reason)
 		SetGlobalBan(ind, {Name = plyr.Name, BannedBy = player.Name, Reason = reason, Timestamp = os.time(), Duration = duration})
 		banList[ind] = nil
 		sendData(player, "Output", {"Note", "Temporal Banned "..plyr.Name})
 	end,
 	["remoteban, rb"] = function(player, result)
 		local toBan, reason = result:match("([%w_]+)/(.*)");
+		reason = reason:match("%S") and reason or "No reason provided."
 		if (not toBan) then 
 			return sendData(player, "Output", {"Error", "Error while parsing command"}); 
 		end
@@ -2618,6 +2609,7 @@ modCommands = {
 	end,
 	["remotetban, rtb"] = function(player, result)
 		local toBan, duration, reason = result:match("([%w_]+)/(%d+)/(.*)")
+		reason = reason:match("%S") and reason or "No reason provided."
 		if (not toBan or not duration) then
 			return sendData(player, "Output", {"Error", "Error while parsing command"});
 		end
@@ -2634,7 +2626,7 @@ modCommands = {
 	end,
 	["pban"] = function(player, result)
 		local toBan, reason = result:match("([%w_]+)/(.*)")
-		reason = reason or "No reason given"
+		reason = reason:match("%S") and reason or "No reason provided."
 		if (not toBan) then
 			return sendData(player, "Output", {"Error", "Error while parshing command"});
 		end
@@ -2644,7 +2636,7 @@ modCommands = {
 			if plyr.Name:lower():sub(1,#toBan) == toBan:lower() and not dataBase[plyr.UserId].Mod then
 				userId = plyr.UserId
 				name = plyr.Name
-				plyr:Kick("Banned by a vsb moderator - Ban type: Game - Days banned: 3650000 - Reason: "..reason)
+				plyr:Kick("Banned by: "..player.Name.." - Ban type: Game - Days banned: 3650000 - Reason: "..reason)
 				break
 			end
 		end
@@ -2680,42 +2672,23 @@ modCommands = {
 		sendData(player, "Output", {"Note", "Kicked "..plyr.Name})
 	end,
 	["member, mb"] = function(player, plyr)
-		if string.lower(plyr) == "@everyone" then
-			if sbAllowedToEveryone then
-				return sendData(player, "Output", {"Warn", "Everyone has already access to the commands"})
-			end
-			for i, v in pairs(players:GetPlayers()) do
-				if dataBase[v.UserId] and not dataBase[v.UserId].SB then
-					coroutine.wrap(hookClient)(v)
-				end
-			end
-			sbAllowedToEveryone = true
-			return sendData(player, "Output", {"Note", "Now everyone has access to the commands"})
-		end
 		local toPlr = getPlayers(player, plyr)[1]
 		if not toPlr then
 			return sendData(player, "Output", {"Error", "Player not found"})
 		end
 		for _, toPlr in pairs(getPlayers(player, plyr)) do
-			if dataBase[toPlr.userId].SB then
-				sendData(player, "Output", {"Warn", toPlr.Name.." has already access to the commands"})
+			if Members[toPlr.UserId] then
+				sendData(player, "Output", {"Warn", toPlr.Name.." is already a member of Script Builder"})
 			else
 				Members[toPlr.UserId] = toPlr.Name
-				hookClient(toPlr)
-				sendData(player, "Output", {"Note", toPlr.Name.." is a new member (The output has been given)"})
+				if not dataBase[toPlr.UserId].SB then
+					hookClient(toPlr)
+				end
+				sendData(player, "Output", {"Note", toPlr.Name.." is a new member of Script Builder"})
 			end
 		end
 	end,
 	["unmember, unmb"] = function(player, plyr)
-		if string.lower(plyr) == "@everyone" then
-			sbAllowedToEveryone = false
-			for i, v in pairs(players:GetPlayers()) do
-				if not Members[v.UserId] and not Moderators[v.UserId] then
-					dataBase[v.UserId]:Close(true)
-				end
-			end
-			return sendData(player, "Output", {"Note", "Command permissions have been removed for everyone (except moderators/members)"})
-		end
 		local found = false
 		for userId, name in pairs(Members) do
 			if plyr == "all" or name:sub(1,#plyr):lower() == plyr:lower() then
@@ -2723,7 +2696,7 @@ modCommands = {
 				local playerData = dataBase[userId]
 				Members[userId] = nil
 				playerData:Close(true)
-				sendData(player, "Output", {"Note", name.."'s permission has been removed"})
+				sendData(player, "Output", {"Note", "Removed "..name.." from Script Builder members"})
 			end
 		end
 		if not found then
@@ -2799,6 +2772,30 @@ modCommands = {
 		else
 			sendData(player, "Output", {"Note", tostring(plyr).. " is not banned from server/game"})
 		end
+	end,
+	["enableEA, EA"] = function(player)
+		if EAenabled then
+			return sendData(player, "Output", {"Warn", "SB Early Access is already enabled"})
+		end
+		for i, v in pairs(players:GetPlayers()) do
+			if dataBase[v.UserId] and not dataBase[v.UserId].SB then
+				coroutine.wrap(hookClient)(v)
+			end
+		end
+		EAenabled = true
+		return sendData(player, "Output", {"Note", "SB Early Access is now actived"})
+	end,
+	["disableEA, unEA"] = function(player)
+		EAenabled = false
+		for i, v in pairs(players:GetPlayers()) do
+			if not Members[v.UserId] and not Moderators[v.UserId] then
+				dataBase[v.UserId]:Close(true)
+			end
+		end
+		return sendData(player, "Output", {"Note", "Disabled SB Early Access"})
+	end,
+	["isEAenabled"] = function(player)
+		sendData(player, "Output", {"Note", "Early Access is currently "..(EAenabled and "actived" or "closed")})
 	end
 }
 
@@ -2850,7 +2847,7 @@ coroutine.wrap(function()
 		for _, plyr in ipairs(players:GetPlayers()) do
 			local banData = dataBase[plyr.UserId] and not dataBase[plyr.UserId].Mod and gBanList[tostring(plyr.UserId)]
 			if (banData) then
-				plyr:Kick("Banned by a vsb moderator - Ban type: Game - Duration: "..banData.Duration.." - Reason: "..banData.Reason)
+				plyr:Kick("Banned by: "..banData.BannedBy.." - Ban type: Game - Duration: "..banData.Duration.." - Reason: "..banData.Reason)
 			end
 		end
 		wait(15)
@@ -2983,16 +2980,6 @@ coroutine.resume(coroutine.create(function()
 	end
 	
 	main.CrossFunctions = {
-		--[[UpdateServerList = function(jobId, players, fps, serverType)
-			serverList[jobId] = {Players = players; FPS = fps; ServerType = serverType}
-		end;
-		InitializeServer = function(...)
-			main.Send('UpdateServerList', main.GetInfo())
-			main.CrossFunctions.UpdateServerList(...)
-		end;
-		ClosedServer = function(jobId)
-			serverList[jobId] = nil
-		end;]]
 		ReturnData = function(code)
 			main.Send('OnResponse', code, main.GetInfo())
 		end;
@@ -3027,34 +3014,6 @@ coroutine.resume(coroutine.create(function()
 			end
 		end)
 	end)
-	
-	--[[local closed = false
-	main.Send('InitializeServer', main.GetInfo())
-	
-	local lastUpdate = tick()
-	local update; update = function()
-		local success = Pcall(main.Send, 'UpdateServerList', main.GetInfo())
-		if not success then
-			wait(10)
-			if (tick() - lastUpdate) >= 10 then
-				update()
-			end
-		else
-			lastUpdate = tick()
-		end
-	end
-	
-	local pAdded = players.PlayerAdded:Connect(update)
-	local pRemoved = players.PlayerRemoving:Connect(update)
-
-	
-	game.Close:Connect(function()
-		closed = true
-		subConn:Disconnect()
-		pAdded:Disconnect()
-		pRemoved:Disconnect()
-		main.Send('ClosedServer', game.JobId)
-	end)]]
 	
 	CrossManager = main
 end))
@@ -3993,11 +3952,13 @@ function hookClient(player, justPlayerData)
 					return deleteAll(t)
 				else
 					local init = tick()
-					local rData = false
+					local responsed = false
+					local rData
 					local bindable = Instance.new("BindableFunction")
 					bindable.OnInvoke = function(response)
 						if response == "Accept" then
 							rData = deleteAll(t)
+							responsed = true
 						end
 					end
 					sendNotification({
@@ -4008,7 +3969,7 @@ function hookClient(player, justPlayerData)
 						Button2 = "Decline";
 						Callback = bindable;
 					})
-					repeat wait() until rData or tick()-init > 15
+					repeat wait() until responsed or tick()-init > 15
 					closureDb = false
 					return rData
 				end
@@ -4032,7 +3993,7 @@ function hookClient(player, justPlayerData)
 end
 
 local function setupPlayer(plr)
-	if Members[plr.UserId] or Moderators[plr.UserId] or sbAllowedToEveryone then
+	if Members[plr.UserId] or Moderators[plr.UserId] or EAenabled then
 		hookClient(plr)
 	else
 		hookClient(plr, true)
@@ -4050,11 +4011,11 @@ OnPlayerAdded(function(player)
 		if timeLeftInDays <= 0 or Moderators[player.UserId] then
 			RemoveGlobalBan(ind)
 		else
-			player:Kick("Banned by a vsb moderator - Ban type: Game - Days left: "..timeLeftInDays.." - Reason: "..gBanData.Reason)
+			player:Kick("Banned by: "..gBanData.BannedBy.." - Ban type: Game - Days left: "..timeLeftInDays.." - Reason: "..gBanData.Reason)
 			isBanned = true
 		end
 	elseif banData then
-		player:Kick("Banned by a vsb moderator - Ban type: Server - Reason: "..tostring(banData.Reason))
+		player:Kick("Banned by: "..banData.BannedBy.." - Ban type: Server - Reason: "..tostring(banData.Reason))
 		isBanned = true
 	end
 	if isBanned then
