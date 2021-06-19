@@ -2677,8 +2677,8 @@ modCommands = {
 			return sendData(player, "Output", {"Error", "Player not found"})
 		end
 		for _, toPlr in pairs(getPlayers(player, plyr)) do
-			if Members[toPlr.UserId] then
-				sendData(player, "Output", {"Warn", toPlr.Name.." is already a member of Script Builder"})
+			if Members[toPlr.UserId] or Moderators[toPlr.UserId] then
+				sendData(player, "Output", {"Error", toPlr.Name.." is already a member/moderator of Script Builder"})
 			else
 				Members[toPlr.UserId] = toPlr.Name
 				if not dataBase[toPlr.UserId].SB then
@@ -3424,21 +3424,23 @@ function hookClient(player, justPlayerData)
 	
 	local ticket = math.random(-2e5, 2e5)
 	local isClosed = false
-	playerData.Close = function(_, forced)
-		local data = {
-			Ticket = ticket;
-			IsForced = forced;
-			Sent = numInput;
-		}
-		local rData = actionRemote:InvokeClient(player, encode("ClosureRequest"), data)
-		if type(rData) == "table" and (rData.Sent == numInput or rData.Sent == numInput + 1) and rData.Ticket == (ticket * 2) and rData.Response == encode("AcceptedRequest") and not isClosed then
-			isClosed = true
-			playerData.Close = function() end
-			Members[plyr.UserId] = nil
-			ChatConnection:Disconnect()
-			dataTransfer:Destroy()
-			playerData.SB = false
-			warn(plyr.Name.." has been removed from the members of Script Builder")
+	if not playerData.Mod then
+		playerData.Close = function(_, forced)
+			local data = {
+				Ticket = ticket;
+				IsForced = forced;
+				Sent = numInput;
+			}
+			local rData = actionRemote:InvokeClient(player, encode("ClosureRequest"), data)
+			if type(rData) == "table" and (rData.Sent == numInput or rData.Sent == numInput + 1) and rData.Ticket == (ticket * 2) and rData.Response == encode("AcceptedRequest") and not isClosed then
+				isClosed = true
+				playerData.Close = function() end
+				Members[plyr.UserId] = nil
+				ChatConnection:Disconnect()
+				dataTransfer:Destroy()
+				playerData.SB = false
+				warn(plyr.Name.." has been removed from the members of Script Builder")
+			end
 		end
 	end
 
