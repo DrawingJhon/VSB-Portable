@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------
---// VOID SCRIPT BUILDER PORTABLE \\--
+--// VOIDACITY'S SCRIPT BUILDER PORTABLE \\--
 -- Script compatible by DrawingJhon | Original made by tusKOr661 --
 ----------------------------------------------------------------------
 
@@ -7,7 +7,7 @@ wait()
 script.Name = "oxSB"
 script.Parent = nil
 
-local Version = "Alpha v2.2.10"
+local Version = "Alpha v2.2.11"
 
 local DS_Key = "6F05FAED-6EA6-4E95-9204-123"
 local psKey = "PrivServsrRand0m7qe8"
@@ -46,7 +46,7 @@ local btools = (function()
 end)()
 
 if req.Initialized then
-	warn("Voidacity's Script Builder Portable is already running! Aborting...")
+	warn("Voidacity's Script Builder is already running! Aborting...")
 	script:Destroy()
 	return
 end
@@ -1366,7 +1366,7 @@ commands = {
 	end,
 	["get, g"] = function(player, result, commandBar)
 		for i, msg in ipairs(splitStr(result, " ")) do
-			local cmd, result = string.lower(msg):match("^([%w%.]+)/?([%w_]*)")
+			local cmd, result = string.lower(msg):match("^([^/]+)/?(.*)")
 			if (cmd) then
 				for cmdkey, func in pairs(getCommands) do
 					if ((", "..string.lower(cmdkey)..", "):match(", "..string.lower(cmd)..", ")) then
@@ -2020,13 +2020,18 @@ getCommands = {
 		local hum = char:WaitForChild("Humanoid")
 		local torso = char:WaitForChild("HumanoidRootPart")
 		local ball = script:WaitForChild("ball")
+		local mConn
+		
+		local function newThread(func)
+			coroutine.resume(coroutine.create(func))
+		end
 
 		bin.Equipped:Connect(function()
 			hum.PlatformStand = true
-			mouse.KeyDown:Connect(function(key)
+			mConn = mouse.KeyDown:Connect(function(key)
 				if key == "w" then
 					local keyUp = false
-					spawn(function()
+					newThread(function()
 						repeat until mouse.KeyUp:wait() == "w"
 						keyUp = true
 					end)
@@ -2036,7 +2041,7 @@ getCommands = {
 					end
 				elseif key == "s" then
 					local keyUp = false
-					spawn(function()
+					newThread(function()
 						repeat until mouse.KeyUp:wait() == "s"
 						keyUp = true
 					end)
@@ -2046,7 +2051,7 @@ getCommands = {
 					end
 				elseif key == "a" then
 					local keyUp = false
-					spawn(function()
+					newThread(function()
 						repeat until mouse.KeyUp:wait() == "a"
 						keyUp = true
 					end)
@@ -2057,7 +2062,7 @@ getCommands = {
 					end
 				elseif key == "d" then
 					local keyUp = false
-					spawn(function()
+					newThread(function()
 						repeat until mouse.KeyUp:wait() == "d"
 						keyUp = true
 					end)
@@ -2077,6 +2082,9 @@ getCommands = {
 
 		bin.Unequipped:Connect(function()
 			hum.PlatformStand = false
+			if mConn then
+				mConn:Disconnect()
+			end
 		end)]], ss)
 		cs.Name = "script"
 		tool.Parent = player:findFirstChildOfClass("Backpack")
@@ -2539,7 +2547,7 @@ getCommands = {
 
 modCommands = {
 	["ban, b"] = function(player, result)
-		local toBan, reason = result:match("([%w_]+)/(.*)")
+		local toBan, reason = result:match("([^/]+)/?(.*)")
 		reason = reason:match("%S") and reason or "No reason provided."
 		if not toBan then
 			return sendData(player, "Output", {"Error", "Error while parsing command"})
@@ -2570,7 +2578,7 @@ modCommands = {
 		sendData(player, "Output", {"Error", name .. " not found"})
 	end,
 	["tban, tb"] = function(player, result)
-		local toBan, duration, reason = result:match("([%w_]+)/(%d+)/(.*)")
+		local toBan, duration, reason = result:match("([^/]+)/(%d+)/?(.*)")
 		reason = reason:match("%S") and reason or "No reason provided."
 		if (not toBan or not duration) then
 			return sendData(player, "Output", {"Error", "Error while parsing command"})
@@ -2589,7 +2597,7 @@ modCommands = {
 		sendData(player, "Output", {"Note", "Temporal Banned "..plyr.Name})
 	end,
 	["remoteban, rb"] = function(player, result)
-		local toBan, reason = result:match("([%w_]+)/(.*)");
+		local toBan, reason = result:match("([^/]+)/?(.*)");
 		reason = reason:match("%S") and reason or "No reason provided."
 		if (not toBan) then 
 			return sendData(player, "Output", {"Error", "Error while parsing command"}); 
@@ -2608,7 +2616,7 @@ modCommands = {
 		sendData(player, "Output", {"Note", "Remote Banned " .. toBan});
 	end,
 	["remotetban, rtb"] = function(player, result)
-		local toBan, duration, reason = result:match("([%w_]+)/(%d+)/(.*)")
+		local toBan, duration, reason = result:match("([^/]+)/(%d+)/?(.*)")
 		reason = reason:match("%S") and reason or "No reason provided."
 		if (not toBan or not duration) then
 			return sendData(player, "Output", {"Error", "Error while parsing command"});
@@ -2625,7 +2633,7 @@ modCommands = {
 		sendData(player, "Output", {"Note", "Remote TempBanned ".. toBan});
 	end,
 	["pban"] = function(player, result)
-		local toBan, reason = result:match("([%w_]+)/(.*)")
+		local toBan, reason = result:match("([^/]+)/?(.*)")
 		reason = reason:match("%S") and reason or "No reason provided."
 		if (not toBan) then
 			return sendData(player, "Output", {"Error", "Error while parshing command"});
@@ -2657,7 +2665,7 @@ modCommands = {
 		end)
 	end,
 	["kick"] = function(player, result)
-		local toKick, reason = result:match("([%w_]+)/(.*)")
+		local toKick, reason = result:match("([^/]+)/?(.*)")
 		if not toKick then
 			return sendData(player, "Output", {"Error", "Error while parsing command"})
 		end
