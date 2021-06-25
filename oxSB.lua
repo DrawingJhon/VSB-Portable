@@ -100,43 +100,27 @@ local coreLibs = {LoadLibrary=true, table=true, coroutine=true, string=true, mat
 local isA = game.IsA
 local proxyObj, newProxyEnv, hookClient;
 
-local coroutine = {wrap = coroutine.wrap, create = coroutine.create, resume = coroutine.resume};
-local string = {gsub = string.gsub, sub = string.sub, lower = string.lower, gmatch = string.gmatch, match = string.match, format = string.format, find = string.find, upper = string.upper};
-local table = {insert = table.insert, remove = table.remove, sort = table.sort, concat = table.concat, find = table.find};
-local Instance = {new = Instance.new};
-local Vector3 = {FromNormalId = Vector3.FromNormalId, FromAxis = Vector3.FromAxis, fromAxis = Vector3.fromAxis, fromNormalId = Vector3.fromNormalId, new = Vector3.new};
-local os = os;
-local next = next;
-local tonumber = tonumber;
-local getfenv = getfenv;
-local getmetatable = getmetatable;
-local unpack = unpack;
-local setmetatable = setmetatable;
-local ypcall = ypcall;
-local xpcall = xpcall;
-local pairs = pairs;
-local rawget = rawget;
-local newproxy = newproxy;
-local shared = shared;
-local collectgarbage = collectgarbage;
-local rawset = rawset;
-local ipairs = ipairs;
-local type = type;
-local tostring = tostring;
-local gcinfo = gcinfo;
-local rawequal = rawequal;
-local select = select;
-local print = print;
-local pcall = pcall;
-local LoadLibrary = LoadLibrary;
-local assert = assert;
-local loadstring = loadstring;
-local setfenv = setfenv;
-local error = error;
-local _G = _G;
-local delay = delay;
-local spawn = spawn;
-local require = require;
+local _G, game, script, getfenv, setfenv, workspace,
+getmetatable, setmetatable, loadstring, coroutine,
+rawequal, typeof, print, math, warn, error,  pcall,
+xpcall, select, rawset, rawget, ipairs, pairs,
+next, Rect, Axes, os, tick, Faces, unpack, string, Color3,
+newproxy, tostring, tonumber, Instance, TweenInfo, BrickColor,
+NumberRange, ColorSequence, NumberSequence, ColorSequenceKeypoint,
+NumberSequenceKeypoint, PhysicalProperties, Region3int16,
+Vector3int16, elapsedTime, require, table, type, wait,
+Enum, UDim, UDim2, Vector2, Vector3, Region3, CFrame, Ray, spawn =
+	_G, game, script, getfenv, setfenv, workspace,
+	getmetatable, setmetatable, loadstring, coroutine,
+	rawequal, typeof, print, math, warn, error,  pcall,
+	xpcall, select, rawset, rawget, ipairs, pairs,
+	next, Rect, Axes, os, tick, Faces, unpack, string, Color3,
+	newproxy, tostring, tonumber, Instance, TweenInfo, BrickColor,
+	NumberRange, ColorSequence, NumberSequence, ColorSequenceKeypoint,
+	NumberSequenceKeypoint, PhysicalProperties, Region3int16,
+	Vector3int16, elapsedTime, require, table, type, wait,
+	Enum, UDim, UDim2, Vector2, Vector3, Region3, CFrame, Ray, spawn
+
 local secretEnv;
 
 ------------------------------------------------------
@@ -644,7 +628,7 @@ local customLibrary = {
 					if (type(func) ~= "function") then
 						error("invalid argument #1 to 'Connect' (function expected, got "..type(func)..")", 2);
 					end
-					local cn = mBindableEvent.Event:connect(func);
+					local cn = mBindableEvent.Event:Connect(func);
 					mAllCns[cn] = true;
 					local pubCn = {};
 					local ud = newproxy(true)
@@ -1271,7 +1255,7 @@ local function scriptError(error, stack, script)
 		end
 	end
 end
-errorSignal = context.Error:connect(scriptError)
+errorSignal = context.Error:Connect(scriptError)
 
 req.Inject = setmetatable({}, {
 	__call = function(self, scr)
@@ -1287,7 +1271,7 @@ req.Inject = setmetatable({}, {
 			setfenv(0, env)
 			sendData(owner, "Output", {"Run", "Running ("..name..")"})
 			if (not errorSignal.connected) then
-				errorSignal = context.Error:connect(scriptError);
+				errorSignal = context.Error:Connect(scriptError);
 			end
 			return loadstringEnabled and loadstring or Loadstring, source
 		end
@@ -3388,7 +3372,6 @@ function hookClient(player, justPlayerData)
 		end
 		sendData(player, "Script", scripts)
 	end)
-
 	
 	if justPlayerData then return end
 	local OutputGui = screen:Clone()
@@ -3592,7 +3575,7 @@ function hookClient(player, justPlayerData)
 	function createOutputGUI(scriptIndex, outputIndex, visible, toolmode)
 		local RbxEvents = {}
 		local function RbxEvent(signal, func)
-			local event = signal:connect(func)
+			local event = signal:Connect(func)
 			table.insert(RbxEvents, event)
 			return event
 		end
@@ -3925,13 +3908,13 @@ function hookClient(player, justPlayerData)
 		end
 	end
 
-	table.insert(Connections, player.ChildAdded:connect(getData))
+	table.insert(Connections, player.ChildAdded:Connect(function(child) pcall(getData, child) end))
 
 	for i, child in pairs(player:GetChildren()) do
-		getData(child)
+		pcall(getData, child)
 	end
 
-	Connections[#Connections + 1] = mouse.KeyDown:connect(function(key)
+	Connections[#Connections + 1] = mouse.KeyDown:Connect(function(key)
 		if key == "'" then
 			inputBar:CaptureFocus()
 		end
