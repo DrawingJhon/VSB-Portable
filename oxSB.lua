@@ -3616,13 +3616,16 @@ function hookClient(player, justPlayerData)
 		end)
 		RbxEvent(inputBar.FocusLost, function(enter, input)
 			if enter and input and input.KeyCode == Enum.KeyCode.Return then
-				if commandRemote.Parent then
-					numFired = numFired + 1
-					commandRemote:InvokeServer(numFired, inputBar.Text)
+				numFired = numFired + 1
+				local focused = false
+				newThread(function()
+					inputBar.Focused:Wait()
+					focused = true
+				end)
+				commandRemote:InvokeServer(numFired, inputBar.Text)
+				if not focused then
 					inputBar.Text = "Click here or press (') to run a command"
 				end
-			elseif (input and input.KeyCode.Value == 27) then
-				inputBar.Text = "Click here or press (') to run a command"
 			end
 		end)
 		-- ScriptFrame
