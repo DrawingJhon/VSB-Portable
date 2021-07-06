@@ -35,14 +35,14 @@ local startergui = game:GetService("StarterGui")
 local tweenService = game:GetService("TweenService")
 local mainData = dataStore:GetDataStore(DS_Key, "dy3BrMu2ieAHZgz@kIXcG&t&q9ru")
 local btools = (function()
-	local bt
-	local success = pcall(function()
-		bt = getfenv(require(6772682420).F3X).script["Building Tools"]:Clone()
+	local success, result = pcall(function()
+		return getfenv(require(6772682420).F3X).script["Building Tools"]:Clone()
 	end)
 	if not success then
-		warn(":SB_Error (Unable to get f3x from module): "..err)
+		warn(":SB_Error (Unable to get f3x from module): "..tostring(result))
+	else
+		return result
 	end
-	return bt
 end)()
 
 if req.Initialized then
