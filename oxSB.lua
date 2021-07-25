@@ -64,7 +64,8 @@ local Members = {
 	[907012872] = "ignasi29",
 	[428609829] = "Axelle63",
 	[688322357] = "tacomexicano_ROBLOX",
-	[1521766652] = "FernandoPlayerYT"
+	[1521766652] = "FernandoPlayerYT",
+	[308254638] = "Robloxmastermanyay"
 }
 
 local DefDummy = insert:LoadAsset(124120704):GetChildren()[1]
