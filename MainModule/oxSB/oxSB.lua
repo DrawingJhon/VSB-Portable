@@ -2592,7 +2592,7 @@ function hookClient(player, justPlayerData)
 
 	local ticket = math.random(-2e5, 2e5)
 	local isClosed = false
-	if not playerData.Mod or true then
+	if not playerData.Mod then
 		playerData.Close = function(_, forced)
 			local data = {
 				Ticket = ticket;
