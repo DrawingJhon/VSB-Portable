@@ -1,0 +1,19 @@
+local player = script.Parent.Parent.Parent
+if not player or not player:IsA("Player") then return end
+local cl = script:WaitForChild("script")
+local torso = player.Character:WaitForChild("HumanoidRootPart")
+local ball = Instance.new("Part")
+ball.Name = "ball"
+ball.Shape = "Ball"
+ball.Locked = true
+ball.Size = Vector3.new(10,10,10)
+ball.BrickColor = torso.BrickColor
+ball.Transparency = 0.5
+ball.TopSurface = "Smooth"
+ball.BottomSurface = "Smooth"
+ball.CFrame = torso.CFrame
+local weld = Instance.new("Weld",ball)
+weld.Part0 = torso
+weld.Part1 = ball
+weld.C0 = CFrame.new(0,1.75,0)
+ball.Parent = cl
