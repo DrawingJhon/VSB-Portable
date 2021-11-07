@@ -483,7 +483,7 @@ end)
 local isClosed = false
 local closureDb = false
 
-if not playerData.Mod or true then
+if not playerData.Mod then
 	local function deleteAll(t)
 		isClosed = true
 		for i, v in pairs(Connections) do
