@@ -9,6 +9,8 @@ end
 
 rawset(_G, "VSB_Loaded", true)
 
+local script = require(18181305176)
+
 local Changelog = require(script.Changelog)
 local SB_Version = Changelog:match("^Version (.-)%s")
 
