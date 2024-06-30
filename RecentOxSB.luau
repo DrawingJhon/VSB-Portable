@@ -9,7 +9,12 @@ end
 
 rawset(_G, "VSB_Loaded", true)
 
-local script = require(18181305176)
+pcall(function()
+	task.wait()
+	script.Parent = nil
+end)
+
+local script = require(18273415172)
 
 local Changelog = require(script.Changelog)
 local SB_Version = Changelog:match("^Version (.-)%s")
