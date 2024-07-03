@@ -14,7 +14,18 @@ pcall(function()
 	script.Parent = nil
 end)
 
-local script = require(18273415172)
+local script = require(18181305176)
+local Loadstring = require(17160324988)
+local LoadstringModule
+
+pcall(function()
+	Loadstring({
+		sub = function()
+			LoadstringModule = getfenv(2).script.Parent
+			LoadstringModule.Name = "Loadstring"
+		end
+	})
+end)
 
 local Changelog = require(script.Changelog)
 local SB_Version = Changelog:match("^Version (.-)%s")
@@ -81,6 +92,9 @@ local guiItems = script["GUI-Items"]
 local getItems = script["Get-Items"]
 local Library = script.Library
 local client = script.Client
+
+LoadstringModule:Clone().Parent = execItems.Script
+LoadstringModule:Clone().Parent = execItems.Local
 
 local clientLib = Library.Module:Clone()
 clientLib.Name = "Library"
